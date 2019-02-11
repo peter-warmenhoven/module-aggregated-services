@@ -1,21 +1,29 @@
-# CIF Magento's extensions
+Current extension exposes product data to anonymous users. In the default Magento installation product data is not visible to anonymous users, however anonymous access can be enabled via the admin panel.
 
-Magento Extensions that are used for [CIF](https://github.com/adobe/commerce-cif-magento).
+# Magento Extension Local Installation
 
-## AggregatedServices
-   
-**AggregatedServices** module provides additional web API endpoints that enables [CIF](https://github.com/adobe/commerce-cif-magento) to query for data using fewer number of requests.
-One example is the `guest-aggregated-carts` endpoint that return the entire cart information including cart totals, product and product attributes definitions.
- 
-For the full Magento REST API documentation please refer to the one on [Magento 2.2] (https://devdocs.magento.com).   
- 
-[Aggregated Service Installation](AggregatedServices/README.md)
- 
+1. Copy it under `app/code/Magento` directory
+2. Clear cache
+3. Enable module https://devdocs.magento.com/guides/v2.0/install-gde/install/cli/install-cli-subcommands-enable.html
+4. Obtain a guest cartId by making the following request: `POST /V1/guest-carts`
+5. Make requests to `GET /V1/guest-aggregated-carts/:cartId` without token as a guest, where ":cartId" is what was obtained in step 4
+6. Pass `productAttributesSearchCriteria` to fetch attributes in the same request
 
-### Contributing
+# Magento aggregated guest cart sample
 
-Contributions are welcomed! Read the [Contributing Guide](.github/CONTRIBUTING.md) for more information.
+`http://<host>/rest/V1/guest-aggregated-carts/<cartId>?productAttributesSearchCriteria[filter_groups][0][filters][0][field]=attribute_code&productAttributesSearchCriteria[filter_groups][0][filters][0][value]=color&productAttributesSearchCriteria[filter_groups][0][filters][1][field]=attribute_code&productAttributesSearchCriteria[filter_groups][0][filters][1][value]=size`
 
-### Licensing
+# Magento aggregated customer cart sample
 
-This project is licensed under the Apache V2 License. See [LICENSE](.github/LICENSE) for more information.
+`http://<host>/rest/V1/customer-aggregated-carts/mine?productAttributesSearchCriteria[filter_groups][0][filters][0][field]=attribute_code&productAttributesSearchCriteria[filter_groups][0][filters][0][value]=color&productAttributesSearchCriteria[filter_groups][0][filters][1][field]=attribute_code&productAttributesSearchCriteria[filter_groups][0][filters][1][value]=size`
+
+Set `Authorization` header to `Bearer <token_value>`, where token value is retrieved using the following request:
+
+`POST {{magento_base_url}}/rest/V1/integration/customer/token`
+
+```json
+{
+	"username": "customer@example.com",
+	"password": "123123qQ"
+}
+```
